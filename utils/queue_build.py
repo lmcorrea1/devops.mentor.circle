@@ -74,8 +74,9 @@ def main():
         http_headers = ap.set_header()
         api_endpoint = ap.set_api_endpoint()
         r = ap.rest_api_request('POST', api_endpoint, json.dumps(payload), http_headers)
-        pastebin_url = r.text
-        print("The response IS :%s" % pastebin_url)
+        pastebin_url = json.loads(r.text)
+        print(json.dumps(pastebin_url, indent=4, sort_keys=True))
+        #print("The response IS :%s" % pastebin_url)
 
     except Exception as e:
         print(e)
