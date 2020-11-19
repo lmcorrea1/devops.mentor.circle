@@ -58,16 +58,18 @@ class AzureRestAgents:
     def extract_agent_information(self, agents_list=None, agent_name=None):
         if agents_list is not None and agents_list != "":
             if agent_name is not None and agent_name != "":
-                while agents_list is not None:
-                    for agents in agents_list:
-                        if agents.name == agent_name:
-                            pprint.pprint("ID[" + str(agents.id) + "] " + str(agents.name) + "[" + str(agents.status) + "]")
-                    break
+                for agents in agents_list:
+                    if agents.name == agent_name:
+                        pprint.pprint("ID[" + str(agents.id) + "] " + str(agents.name) + "[" + str(agents.status) + "]")
+                        break
+                else:
+                    print("No agent found")
             else:
                 for agents in agents_list:
                     pprint.pprint("ID[" + str(agents.id) + "] " + str(agents.name) + "[" + str(agents.status) + "]")
         else:
             print("No Agent information received")
+            sys.exit(1)
 
 
 def main():
