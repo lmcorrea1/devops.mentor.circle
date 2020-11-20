@@ -1,11 +1,8 @@
-import requests
-import json
-import base64
 import sys
 import configparser
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
-import pprint
+from setup_logger import logger
 
 class AzureRestAgents:
     pass
@@ -43,7 +40,6 @@ class AzureRestAgents:
             get_pools_respose = agent_client.get_agent_pools()
             while get_pools_respose is not None:
                 for pools in get_pools_respose:
-                    pprint.pprint("[" + str(pools.id) + "] " + str(pools.name))
                     if pools.name == config_values['pool_name']:
                         pool_id = pools.id
                         pool_info = agent_client.get_agents(pool_id=pool_id)
@@ -52,24 +48,28 @@ class AzureRestAgents:
                         pool_info = None
                 return pool_info
         else:
-            get_all_pools_respose = agent_client.get_agent_pools()
-            return get_all_pools_respose
+            logger.warning("Pool Name is not set")
+            return None
+            #get_all_pools_respose = agent_client.get_agent_pools()
 
     def extract_agent_information(self, agents_list=None, agent_name=None):
         if agents_list is not None and agents_list != "":
             if agent_name is not None and agent_name != "":
                 for agents in agents_list:
                     if agents.name == agent_name:
-                        pprint.pprint("ID[" + str(agents.id) + "] " + str(agents.name) + "[" + str(agents.status) + "]")
+                        return f"id:{agents.id} name:{agents.name} status:{agents.status}"
                         break
                 else:
-                    print("No agent found")
+                    logger.warning(f"No Agent {agent_name} Found")
+                    return None
             else:
+                agents_info = []
                 for agents in agents_list:
-                    pprint.pprint("ID[" + str(agents.id) + "] " + str(agents.name) + "[" + str(agents.status) + "]")
+                    agents_info.append(f"id:{agents.id} name:{agents.name} status:{agents.status}")
+                return agents_info
         else:
-            print("No Agent information received")
-            sys.exit(1)
+            logger.warning(f"No Agent information received from the Pool")
+            return None
 
 
 def main():
@@ -77,14 +77,11 @@ def main():
         ap = AzureRestAgents()
         config_values = ap.extract_config_information()
         pools_information = ap.process_pool_information(pool_name=config_values['pool_name'])
-        #print(pools_information)
-        ap.extract_agent_information(agents_list=pools_information, agent_name=config_values['agent_name'])
-        sys.exit(0)
-
+        result = ap.extract_agent_information(agents_list=pools_information, agent_name=config_values['agent_name'])
+        if result:
+            print(result)
     except Exception as e:
-        print(e)
-        sys.exit(1)
-
+        return e
 
 if __name__ == '__main__':
     sys.exit(main())
