@@ -22,13 +22,6 @@ class AzureRestAgents:
         return {'azure_user': azure_user, 'organization': organization, 'project': project,
                 'pat': pat, 'organization_url': organization_url, 'pool_name': pool_name, 'agent_name': agent_name}
 
-    def set_payload(self, definition_id=None):
-        payload = {
-            "definition": {"id": definition_id},
-            "parameters": "{\"testinfo\":\"DevOPS CICD TEST\"}"
-        }
-        return payload
-
     @staticmethod
     def process_pool_information(pool_name=None):
         config_values = AzureRestAgents.extract_config_information()
