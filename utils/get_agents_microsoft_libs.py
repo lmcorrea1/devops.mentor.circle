@@ -70,22 +70,23 @@ class AzureRestAgents:
             agent_name (str): agent name
 
         Returns:
-            list: agents and its status or single agent if agent_name provided.
+            dict: agents and its status or single agent if agent_name provided.
 
         '''
         if agents_list is not None and agents_list != "":
             if agent_name is not None and agent_name != "":
                 for agents in agents_list:
                     if agents.name == agent_name:
-                        return f"id:{agents.id} name:{agents.name} status:{agents.status}"
+                        agents_info = {agents.name: agents.status}
+                        return agents_info
                         break
                 else:
                     logger.warning(f"No Agent {agent_name} Found")
                     return None
             else:
-                agents_info = []
+                agents_info = {}
                 for agents in agents_list:
-                    agents_info.append(f"id:{agents.id} name:{agents.name} status:{agents.status}")
+                    agents_info[agents.name] = agents.status
                 return agents_info
         else:
             logger.warning(f"No Agent information received from the Pool")
