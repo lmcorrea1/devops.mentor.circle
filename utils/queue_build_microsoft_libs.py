@@ -5,7 +5,7 @@ import sys
 import configparser
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
-import pprint
+from setup_logger import logger
 
 class AzureRest:
     pass
@@ -59,7 +59,7 @@ class AzureRest:
         index = 0
         while get_builds_response is not None:
             for builds in get_builds_response.value:
-                pprint.pprint("[" + str(index) + "] " + str(builds.definition.id))
+                logger.info(f"[{index}] {builds.definition.id}")
                 index += 1
                 if builds.definition.name == build_name:
                     definition_id = builds.definition.id
@@ -90,7 +90,7 @@ def main():
         # Get a client (the "core" client provides access to projects, teams, etc)
         build_client = connection.clients.get_build_client()
         queue_builds_response = build_client.queue_build(build=payload, project=config_values['project'])
-        print(queue_builds_response)
+        logger.info(f"{queue_builds_response}")
 
     except Exception as e:
         print(e)
