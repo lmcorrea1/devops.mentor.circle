@@ -9,6 +9,12 @@ class AzureRestAgents:
 
     @staticmethod
     def extract_config_information():
+        '''
+
+        Returns:
+            Dict: with the obtained information from the config file.
+
+        '''
         config = configparser.ConfigParser()
         config.read('azure_config.cfg')
         # defining the api-endpoint
@@ -24,6 +30,16 @@ class AzureRestAgents:
 
     @staticmethod
     def process_pool_information(pool_name=None):
+        '''
+        retreives all pools from thee provided organization and finds the pool
+        name provided in the parameters.
+        Args:
+            pool_name (str): pool to search the agents
+
+        Returns:
+            list: list with all pools agents
+
+        '''
         config_values = AzureRestAgents.extract_config_information()
         credentials = BasicAuthentication('', config_values['pat'])
         connection = Connection(base_url=config_values['organization_url'], creds=credentials)
@@ -46,6 +62,17 @@ class AzureRestAgents:
             #get_all_pools_respose = agent_client.get_agent_pools()
 
     def extract_agent_information(self, agents_list=None, agent_name=None):
+        '''
+        this will process the list of agents and return the agent status
+
+        Args:
+            agents_list (list) : receives the agent list
+            agent_name (str): agent name
+
+        Returns:
+            list: agents and its status or single agent if agent_name provided.
+
+        '''
         if agents_list is not None and agents_list != "":
             if agent_name is not None and agent_name != "":
                 for agents in agents_list:
@@ -66,6 +93,12 @@ class AzureRestAgents:
 
 
 def main():
+    '''
+
+    Returns:
+        list of agents and its status or single agent if agent_name provided.
+
+    '''
     try:
         ap = AzureRestAgents()
         config_values = ap.extract_config_information()

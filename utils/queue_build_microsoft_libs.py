@@ -12,6 +12,12 @@ class AzureRest:
 
     @staticmethod
     def extract_config_information():
+        '''
+
+        Returns:
+            Dict: with the obtained information from the config file.
+
+        '''
         config = configparser.ConfigParser()
         config.read('azure_config.cfg')
         # defining the api-endpoint
@@ -32,19 +38,30 @@ class AzureRest:
         return payload
 
     @staticmethod
-    def process_build_information():
-        config_values = AzureRest.extract_config_information()
-        credentials = BasicAuthentication('', config_values['pat'])
-        connection = Connection(base_url=config_values['organization_url'], creds=credentials)
+    def process_build_information(project, build_name, pat, organization_url):
+        '''
+
+        Args:
+            project (str): azure project where the build resides
+            build_name (str): build name from above project
+            pat (str): personal access token needed to trigger the build
+            organization_url (str): organization url to search for project and build.
+
+        Returns:
+            int: number that represents the azure build
+
+        '''
+        credentials = BasicAuthentication('', pat)
+        connection = Connection(base_url=organization_url, creds=credentials)
         # Get a client (the "core" client provides access to projects, teams, etc)
         build_client = connection.clients.get_build_client()
-        get_builds_response = build_client.get_builds(project=config_values['project'])
+        get_builds_response = build_client.get_builds(project=project)
         index = 0
         while get_builds_response is not None:
             for builds in get_builds_response.value:
                 pprint.pprint("[" + str(index) + "] " + str(builds.definition.id))
                 index += 1
-                if builds.definition.name == config_values['build_name']:
+                if builds.definition.name == build_name:
                     definition_id = builds.definition.id
                     break
                 else:
@@ -64,7 +81,8 @@ def main():
     try:
         ap = AzureRest()
         config_values = ap.extract_config_information()
-        build_to_trigger = ap.process_build_information()
+        build_to_trigger = ap.process_build_information(config_values['project'], config_values['build_name'],
+                                                        config_values['pat'], config_values['organization_url'])
         print(build_to_trigger)
         payload = ap.set_payload(build_to_trigger)
         credentials = BasicAuthentication('', config_values['pat'])
@@ -73,11 +91,9 @@ def main():
         build_client = connection.clients.get_build_client()
         queue_builds_response = build_client.queue_build(build=payload, project=config_values['project'])
         print(queue_builds_response)
-        sys.exit(0)
 
     except Exception as e:
         print(e)
-        sys.exit(1)
 
 
 if __name__ == '__main__':
