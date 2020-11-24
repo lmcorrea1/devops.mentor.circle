@@ -57,6 +57,7 @@ class AzureBuildInfo:
                 if builds.definition.name == build_name:
                     build_name = builds.definition.name
                     source_branch = builds.source_branch
+                    requested_by =  builds.requested_by.unique_name
                     build_id = builds.id
                     queue_time = builds.queue_time.strftime("%d-%b-%Y %H:%M:%S.%f")
                     start_time = builds.start_time.strftime("%d-%b-%Y %H:%M:%S.%f")
@@ -67,6 +68,8 @@ class AzureBuildInfo:
                 else:
                     build_name = None
                     build_id = None
+                    requested_by = None
+                    source_branch = None
                     queue_time = None
                     start_time = None
                     finish_time = None
@@ -81,7 +84,7 @@ class AzureBuildInfo:
                 # All projects have been retrieved
                 get_builds_response = None
 
-        return {'build_id': build_id, 'build_name': build_name, 'source_branch':source_branch, 'queue_time': queue_time, 'start_time': start_time,
+        return {'build_id': build_id, 'build_name': build_name, 'requested_by': requested_by, 'source_branch':source_branch, 'queue_time': queue_time, 'start_time': start_time,
                 'finish_time': finish_time, 'result': result, 'status': status}
 
 
