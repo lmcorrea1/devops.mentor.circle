@@ -1,13 +1,11 @@
-import requests
-import json
-import base64
+import datetime
 import sys
 import configparser
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 from setup_logger import logger
 
-class AzureRestQueueBuild:
+class AzureBuildInfo:
     pass
 
     @staticmethod
@@ -31,17 +29,11 @@ class AzureRestQueueBuild:
         return {'azure_user': azure_user, 'organization': organization, 'project': project,
                 'pat': pat, 'build_name': build_name, 'organization_url': organization_url}
 
-    def set_payload(self, definition_id=None):
-        payload = {
-            "definition": {"id": definition_id},
-            "parameters": "{\"testinfo\":\"DevOPS CICD TEST\"}"
-        }
-        return payload
-
     @staticmethod
     def process_build_information(project, build_name, pat, organization_url):
         '''
-
+        retreives all builds from the specified project and returns build info
+        if build_name found
         Args:
             project (str): azure project where the build resides
             build_name (str): build name from above project
@@ -60,13 +52,25 @@ class AzureRestQueueBuild:
         index = 0
         while get_builds_response is not None:
             for builds in get_builds_response.value:
-                logger.info(f"[{index}] {builds.definition.id}")
+                #logger.info(f"[{index}] {builds.id}")
                 index += 1
                 if builds.definition.name == build_name:
-                    definition_id = builds.definition.id
+                    build_name = builds.definition.name
+                    build_id = builds.id
+                    queue_time = builds.queue_time.strftime("%d-%b-%Y %H:%M:%S.%f")
+                    start_time = builds.start_time.strftime("%d-%b-%Y %H:%M:%S.%f")
+                    finish_time = builds.finish_time.strftime("%d-%b-%Y %H:%M:%S.%f")
+                    result = builds.result
+                    status = builds.status
                     break
                 else:
-                    definition_id = None
+                    build_name = None
+                    build_id = None
+                    queue_time = None
+                    start_time = None
+                    finish_time = None
+                    result = None
+                    status = None
 
             if get_builds_response.continuation_token is not None and get_builds_response.continuation_token != "":
                 # Get the next page of projects
@@ -75,23 +79,19 @@ class AzureRestQueueBuild:
             else:
                 # All projects have been retrieved
                 get_builds_response = None
-        return definition_id
+
+        return {'build_id': build_id, 'build_name': build_name, 'queue_time': queue_time, 'start_time': start_time,
+                'finish_time': finish_time, 'result': result, 'status': status}
 
 
 def main():
     try:
-        ap = AzureRestQueueBuild()
+        ap = AzureBuildInfo()
         config_values = ap.extract_config_information()
+        logger.info(f"Getting Build Information")
         build_to_trigger = ap.process_build_information(config_values['project'], config_values['build_name'],
                                                         config_values['pat'], config_values['organization_url'])
         print(build_to_trigger)
-        payload = ap.set_payload(build_to_trigger)
-        credentials = BasicAuthentication('', config_values['pat'])
-        connection = Connection(base_url=config_values['organization_url'], creds=credentials)
-        # Get a client (the "core" client provides access to projects, teams, etc)
-        build_client = connection.clients.get_build_client()
-        queue_builds_response = build_client.queue_build(build=payload, project=config_values['project'])
-        logger.info(f"{queue_builds_response}")
 
     except Exception as e:
         print(e)

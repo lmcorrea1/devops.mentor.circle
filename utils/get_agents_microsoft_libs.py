@@ -10,6 +10,7 @@ class AzureRestAgents:
     @staticmethod
     def extract_config_information():
         '''
+        reads configuration file and sets variables
 
         Returns:
             Dict: with the obtained information from the config file.
