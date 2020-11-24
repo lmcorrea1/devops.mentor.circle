@@ -66,7 +66,7 @@ class AzureBuildInfo:
                     status = builds.status
                     break
                 else:
-                    build_name = None
+                    definition_name = None
                     build_id = None
                     requested_by = None
                     source_branch = None
@@ -84,7 +84,7 @@ class AzureBuildInfo:
                 # All projects have been retrieved
                 get_builds_response = None
 
-        return {'build_id': build_id, 'build_name': build_name, 'requested_by': requested_by, 'source_branch':source_branch, 'queue_time': queue_time, 'start_time': start_time,
+        return {'build_id': build_id, 'definition_name': definition_name, 'requested_by': requested_by, 'source_branch':source_branch, 'queue_time': queue_time, 'start_time': start_time,
                 'finish_time': finish_time, 'result': result, 'status': status}
 
 
