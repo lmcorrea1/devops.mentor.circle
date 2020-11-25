@@ -50,14 +50,6 @@ class AzureBuildInfo:
         build_client = connection.clients.get_build_client()
         get_builds_response = build_client.get_builds(project=project)
         flag = 0
-        build_id = None
-        requested_by = None
-        source_branch = None
-        queue_time = None
-        start_time = None
-        finish_time = None
-        result = None
-        status = None
         while get_builds_response is not None:
             for builds in get_builds_response.value:
                 #logger.info(f"[{index}] {builds.id}")
