@@ -74,7 +74,7 @@ class AzureBuildInfo:
                 # All projects have been retrieved
                 get_builds_response = None
         if flag == 0:
-            logger.warning(f"did not find any information related to this build {build_name}")
+            logger.warning(f"did not find any information related to build {build_name}")
             return None
 
         return {'build_id': build_id, 'build_name': build_name, 'requested_by': requested_by, 'source_branch':source_branch, 'queue_time': queue_time, 'start_time': start_time,
@@ -86,9 +86,9 @@ def main():
         ap = AzureBuildInfo()
         config_values = ap.extract_config_information()
         logger.info(f"Getting Build Information")
-        build_to_trigger = ap.process_build_information(config_values['project'], config_values['build_name'],
+        build_info = ap.process_build_information(config_values['project'], config_values['build_name'],
                                                         config_values['pat'], config_values['organization_url'])
-        print(build_to_trigger)
+        print(build_info)
 
     except Exception as e:
         print(e)
