@@ -49,11 +49,18 @@ class AzureBuildInfo:
         # Get a client (the "core" client provides access to projects, teams, etc)
         build_client = connection.clients.get_build_client()
         get_builds_response = build_client.get_builds(project=project)
-        index = 0
+        flag = 0
+        build_id = None
+        requested_by = None
+        source_branch = None
+        queue_time = None
+        start_time = None
+        finish_time = None
+        result = None
+        status = None
         while get_builds_response is not None:
             for builds in get_builds_response.value:
                 #logger.info(f"[{index}] {builds.id}")
-                index += 1
                 if builds.definition.name == build_name:
                     build_name = builds.definition.name
                     source_branch = builds.source_branch
@@ -64,17 +71,8 @@ class AzureBuildInfo:
                     finish_time = builds.finish_time.strftime("%d-%b-%Y %H:%M:%S.%f")
                     result = builds.result
                     status = builds.status
+                    flag = 1
                     break
-                else:
-                    definition_name = None
-                    build_id = None
-                    requested_by = None
-                    source_branch = None
-                    queue_time = None
-                    start_time = None
-                    finish_time = None
-                    result = None
-                    status = None
 
             if get_builds_response.continuation_token is not None and get_builds_response.continuation_token != "":
                 # Get the next page of projects
@@ -83,8 +81,11 @@ class AzureBuildInfo:
             else:
                 # All projects have been retrieved
                 get_builds_response = None
+        if flag == 0:
+            logger.warning(f"did not find any information related to this build {build_name}")
+            return None
 
-        return {'build_id': build_id, 'definition_name': definition_name, 'requested_by': requested_by, 'source_branch':source_branch, 'queue_time': queue_time, 'start_time': start_time,
+        return {'build_id': build_id, 'build_name': build_name, 'requested_by': requested_by, 'source_branch':source_branch, 'queue_time': queue_time, 'start_time': start_time,
                 'finish_time': finish_time, 'result': result, 'status': status}
 
 
