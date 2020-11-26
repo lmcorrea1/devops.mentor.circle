@@ -1,13 +1,12 @@
-import requests
-import json
-import base64
 import sys
 import configparser
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 from setup_logger import logger
 
-class AzureRestQueueBuild:
+
+class AzureRestUpdateBuild:
+
     pass
 
     @staticmethod
@@ -31,10 +30,10 @@ class AzureRestQueueBuild:
         return {'azure_user': azure_user, 'organization': organization, 'project': project,
                 'pat': pat, 'build_name': build_name, 'organization_url': organization_url}
 
-    def set_payload(self, definition_id=None):
+    @staticmethod
+    def set_payload():
         payload = {
-            "definition": {"id": definition_id},
-            "parameters": "{\"testinfo\":\"DevOPS CICD TEST\"}"
+            "status": "cancelling"
         }
         return payload
 
@@ -60,13 +59,19 @@ class AzureRestQueueBuild:
         index = 0
         while get_builds_response is not None:
             for builds in get_builds_response.value:
-                logger.info(f"[{index}] {builds.definition.id}")
+                #logger.info(f"[{index}] {builds.definition.id}")
                 index += 1
                 if builds.definition.name == build_name:
                     definition_id = builds.definition.id
+                    build_id = builds.id
+                    status = builds.status
+                    result = builds.result
                     break
                 else:
                     definition_id = None
+                    build_id = None
+                    status = None
+                    result = None
 
             if get_builds_response.continuation_token is not None and get_builds_response.continuation_token != "":
                 # Get the next page of projects
@@ -75,24 +80,31 @@ class AzureRestQueueBuild:
             else:
                 # All projects have been retrieved
                 get_builds_response = None
-        return definition_id
+        return definition_id, build_id, status, result
+
+    def cancel_build(self, payload, project, build_id, pat, organization_url):
+        credentials = BasicAuthentication('', pat)
+        connection = Connection(base_url=organization_url, creds=credentials)
+        # Get a client (the "core" client provides access to projects, teams, etc)
+        build_client = connection.clients.get_build_client()
+        queue_builds_response = build_client.update_build(build=payload, project=project,
+                                                          build_id=build_id)
+        return queue_builds_response
 
 
 def main():
     try:
-        ap = AzureRestQueueBuild()
+        ap = AzureRestUpdateBuild()
         config_values = ap.extract_config_information()
-        build_to_trigger = ap.process_build_information(config_values['project'], config_values['build_name'],
+        build_to_trigger, build_id, status, result = ap.process_build_information(config_values['project'], config_values['build_name'],
                                                         config_values['pat'], config_values['organization_url'])
-        print(build_to_trigger)
-        payload = ap.set_payload(build_to_trigger)
-        credentials = BasicAuthentication('', config_values['pat'])
-        connection = Connection(base_url=config_values['organization_url'], creds=credentials)
-        # Get a client (the "core" client provides access to projects, teams, etc)
-        build_client = connection.clients.get_build_client()
-        queue_builds_response = build_client.queue_build(build=payload, project=config_values['project'])
-        logger.info(f"{queue_builds_response}")
-
+        logger.info(f"Build:{build_to_trigger} Buildid:{build_id} CurrentStatus:{status} CurrentResult:{result}")
+        payload = ap.set_payload()
+        if build_id:
+            response = ap.cancel_build(payload, config_values['project'], build_id, config_values['pat'], config_values['organization_url'])
+            logger.info(f"{response}")
+        else:
+            logger.warning("No Build to cancel was found")
     except Exception as e:
         print(e)
 
