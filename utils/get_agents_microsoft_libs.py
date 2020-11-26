@@ -65,20 +65,22 @@ class AzureRestAgents:
     def extract_agent_information(self, agents_list=None, agent_name=None):
         '''
         this will process the list of agents and return the agent status
+        will return single agent if agent_name provided or complete list of agents from the pool
+        if agent_name is not provided.
 
         Args:
             agents_list (list) : receives the agent list
             agent_name (str): agent name
 
         Returns:
-            dict: agents and its status or single agent if agent_name provided.
+            agents_info (dict): with agent name, status and enabled true or false
 
         '''
         if agents_list is not None and agents_list != "":
             if agent_name is not None and agent_name != "":
                 for agents in agents_list:
                     if agents.name == agent_name:
-                        agents_info = {agents.name: agents.status}
+                        agents_info = {f"{agents.name}: {[agents.status, agents.enabled]}"}
                         return agents_info
                         break
                 else:
@@ -87,7 +89,7 @@ class AzureRestAgents:
             else:
                 agents_info = {}
                 for agents in agents_list:
-                    agents_info[agents.name] = agents.status
+                    agents_info[agents.name] = [agents.status, agents.enabled]
                 return agents_info
         else:
             logger.warning(f"No Agent information received from the Pool")
