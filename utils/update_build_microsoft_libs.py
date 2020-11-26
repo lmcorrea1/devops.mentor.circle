@@ -20,7 +20,6 @@ class AzureRestUpdateBuild:
         '''
         config = configparser.ConfigParser()
         config.read('azure_config.cfg')
-        # defining the api-endpoint
         azure_user = config['bconfig']['azure_user']
         organization = config['bconfig']['organization']
         project = config['bconfig']['project']
@@ -32,6 +31,14 @@ class AzureRestUpdateBuild:
 
     @staticmethod
     def set_payload():
+        '''
+        define the structure for the payload we are going to send to the
+        Patch or Post Command.
+
+        Returns:
+            dict: with the information to update
+
+        '''
         payload = {
             "status": "cancelling"
         }
@@ -42,13 +49,16 @@ class AzureRestUpdateBuild:
         '''
 
         Args:
-            project (str): azure project where the build resides
-            build_name (str): build name from above project
+            project (str): azure project where the build was created.
+            build_name (str): build name that is shown in the UI
             pat (str): personal access token needed to trigger the build
             organization_url (str): organization url to search for project and build.
 
         Returns:
-            int: number that represents the azure build
+            definition_id (int): number that represents the azure build in the project
+            build_id (int): number that represents the number of a build
+            status (str): the current status of the build
+            result (str): the result of the build
 
         '''
         credentials = BasicAuthentication('', pat)
@@ -82,7 +92,22 @@ class AzureRestUpdateBuild:
                 get_builds_response = None
         return definition_id, build_id, status, result
 
-    def cancel_build(self, payload, project, build_id, pat, organization_url):
+    @staticmethod
+    def cancel_build(payload, project, build_id, pat, organization_url):
+        '''
+        will update/patch the build information, in this case will set the build
+        status to cancelling, this will automatically cancel the azure build.
+        Args:
+            payload (dict): this is the value that we want to update
+            project (str): azure project where the build was created.
+            build_id (int): number that represents the number of a build
+            pat (str): personal access token needed to trigger the build
+            organization_url (str): organization url to search for project and pipeline
+
+        Returns:
+            queue_builds_response (obj):  information and all azure build attributes.
+
+        '''
         credentials = BasicAuthentication('', pat)
         connection = Connection(base_url=organization_url, creds=credentials)
         # Get a client (the "core" client provides access to projects, teams, etc)
