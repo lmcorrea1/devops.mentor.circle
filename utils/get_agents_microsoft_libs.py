@@ -1,4 +1,4 @@
-import sys
+import system
 import test
 import configparser
 from msrest.authentication import BasicAuthenticatio
