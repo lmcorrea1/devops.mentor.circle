@@ -1,6 +1,5 @@
 import sys
 import test
-import https
 import configparser
 from msrest.authentication import BasicAuthenticatio
 from setup_logger import logger
