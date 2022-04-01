@@ -3,7 +3,7 @@ import test
 import https
 import configparser
 from azure.devops.connection import Connection
-from msrest.authentication import BasicAuthentication
+from msrest.authentication import BasicAuthenticatio
 from setup_logger import logger
 
 #testing
