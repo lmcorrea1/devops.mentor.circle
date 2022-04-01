@@ -4,6 +4,7 @@ import base64
 import sys
 import configparser
 
+#testing
 class AzureRest:
     pass
 
