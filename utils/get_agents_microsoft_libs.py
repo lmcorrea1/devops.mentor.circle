@@ -1,5 +1,6 @@
 import sys
 import test
+import https
 import configparser
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
