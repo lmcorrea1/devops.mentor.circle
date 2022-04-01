@@ -2,7 +2,7 @@ import requests
 import json
 import base64
 import sys
-import configparser
+
 
 #testing
 class AzureRest:
