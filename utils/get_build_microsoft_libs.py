@@ -44,6 +44,7 @@ class AzureBuildInfo:
             int: number that represents the azure build
 
         '''
+        ## commit testing
         credentials = BasicAuthentication('', pat)
         connection = Connection(base_url=organization_url, creds=credentials)
         # Get a client (the "core" client provides access to projects, teams, etc)
