@@ -8,6 +8,7 @@ from setup_logger import logger
 
 #conflict11
 #conflict12
+#git test Cherry
 class AzureBuildInfo:
     pass
 
