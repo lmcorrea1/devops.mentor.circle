@@ -6,8 +6,8 @@ from msrest.authentication import BasicAuthentication
 from setup_logger import logger
 # otro commit 
 
-#conflict1
-#conflict2
+#conflict3
+#conflict4
 class AzureBuildInfo:
     pass
 
