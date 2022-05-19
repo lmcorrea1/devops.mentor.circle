@@ -3,19 +3,19 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "UserName": {
-            "value": "lmcorrea"
+            "value": ""
         },
         "ownerEmail": {
-            "value": "luis.m.correa.perez@intel.com"
+            "value": ""
         },
         "objectId":{
-            "value": "54556814-0053-47ae-9c36-7482f404e6f9"
+            "value": ""
         },
         "adminUsername":{
-            "value": "lmcorrea"
+            "value": ""
         },
         "adminPassword":{
-            "value": "7=8bCW"
+            "value": ""
         }
     }
 }
